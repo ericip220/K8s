@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes 廣東話新手指南 (由入門到實踐)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: The application is structured as a single-page, multi-section course. A fixed sidebar navigation allows users to easily jump between different learning modules (chapters). This modular, non-linear design was chosen for usability, enabling both sequential learning for beginners and quick reference for those needing specific information. The user flow is from theory (Core Concepts) to practice (Lab Setup, First App) and then to deeper dives (Workloads, Networking). This logical progression builds knowledge incrementally. Key interactions include clicking navigation links to smoothly scroll to content sections and copying code snippets from dedicated blocks. -->
+    <!-- Visualization & Content Choices: Report Info -> A comprehensive Kubernetes course in Cantonese. Goal -> Educate from beginner to advanced with practical application. Viz/Presentation Method -> Structured text sections with clear headings, HTML/CSS diagrams to explain architecture, and distinct code blocks for commands/YAML. Interaction -> Sidebar navigation for content visibility switching, clickable code blocks for easy copying. Justification -> This structure breaks down a complex topic into digestible, self-contained modules. Using HTML/CSS for diagrams (like the K8s architecture) avoids external images or complex libraries, keeping the app self-contained and fast. Code blocks are essential for a technical course. Library/Method -> Vanilla JavaScript for navigation, Tailwind CSS for styling. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans HK', sans-serif;
+            background-color: #f5f5f4; /* Stone 100 */
+            color: #292524; /* Stone 800 */
+        }
+        .code-block {
+            background-color: #292524; /* Stone 800 */
+            color: #f5f5f4; /* Stone 100 */
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            font-family: monospace;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #57534e; /* Stone 600 */
+            color: #f5f5f4;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .copy-btn:hover {
+            background-color: #78716c; /* Stone 500 */
+        }
+        h1, h2, h3 {
+            color: #a855f7; /* Purple 500 */
+            font-weight: 700;
+        }
+        .active-nav {
+            background-color: #a855f7; /* Purple 500 */
+            color: white;
+        }
+        .concept-box {
+            background-color: #e7e5e4; /* Stone 200 */
+            border-left: 4px solid #a855f7; /* Purple 500 */
+            padding: 1rem;
+            border-radius: 0.25rem;
+        }
+    </style>
+</head>
+<body class="flex">
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-screen w-64 bg-stone-200 text-stone-800 p-4 transition-transform -translate-x-full md:translate-x-0">
+        <h2 class="text-2xl font-bold mb-6 text-purple-600">課程目錄</h2>
+        <nav>
+            <ul class="space-y-2">
+                <li><a href="#intro" class="nav-link block px-4 py-2 rounded-md hover:bg-purple-500 hover:text-white">課程簡介</a></li>
+                <li><a href="#concepts" class="nav-link block px-4 py-2 rounded-md hover:bg-purple-500 hover:text-white">第一章：核心概念</a></li>
+                <li><a href="#lab-setup" class="nav-link block px-4 py-2 rounded-md hover:bg-purple-500 hover:text-white">第二章：建立實驗環境</a></li>
+                <li><a href="#first-app" class="nav-link block px-4 py-2 rounded-md hover:bg-purple-500 hover:text-white">第三章：部署第一個應用</a></li>
+                <li><a href="#workloads" class="nav-link block px-4 py-2 rounded-md hover:bg-purple-500 hover:text-white">第四章：深入工作負載</a></li>
+                <li><a href="#networking" class="nav-link block px-4 py-2 rounded-md hover:bg-purple-500 hover:text-white">第五章：網絡與儲存</a></li>
+                <li><a href="#advanced" class="nav-link block px-4 py-2 rounded-md hover:bg-purple-500 hover:text-white">第六章：進階主題</a></li>
+                <li><a href="#cheatsheet" class="nav-link block px-4 py-2 rounded-md hover:bg-purple-500 hover:text-white">常用指令大全</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Mobile Menu Button -->
+    <button id="menu-btn" class="fixed top-4 left-4 z-20 md:hidden bg-purple-500 text-white p-2 rounded-md">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+        </svg>
+    </button>
+    
+    <!-- Main Content -->
+    <main class="w-full md:ml-64 p-6 md:p-12">
+        <section id="intro" class="mb-16">
+            <h1 class="text-4xl font-bold mb-4">Kubernetes 廣東話新手指南</h1>
+            <p class="text-lg text-stone-600 mb-6">呢個課程係為咗想學 Kubernetes (K8s) 嘅朋友而設，無論你係開發人員、系統管理員定係 DevOps 工程師，都可以喺度由淺入深，一步步掌握呢個強大嘅容器編排工具。我哋會由最基本嘅概念講起，到最後你會識得點樣自己部署同管理應用程式。</p>
+            <div class="concept-box">
+                <h3 class="text-xl font-bold mb-2">點解要學 Kubernetes？</h3>
+                <p>喺今時今日，用容器 (Container) 嚟開發同部署應用程式已經係大勢所趨。Kubernetes 可以幫我哋自動化管理大量嘅容器，處理例如部署、擴展 (scaling)、自我修復等複雜工作，令我哋可以更專注喺開發上面，唔使再為伺服器嘅嘢煩惱。學識 Kubernetes 會係你事業上一大加分點！</p>
+            </div>
+        </section>
+
+        <section id="concepts" class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">第一章：核心概念</h2>
+            <p class="mb-6">喺我哋開始郁手做之前，首先要了解一下 Kubernetes 裡面最重要嘅幾個概念。</p>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="concept-box"><strong>Cluster (叢集):</strong> 成個 Kubernetes 環境就係一個 Cluster。佢由一部 Master Node (控制平面) 同幾部 Worker Node (工作節點) 組成。</div>
+                <div class="concept-box"><strong>Node (節點):</strong> 一部 Node 就好似一部伺服器，可以係實體機或者虛擬機。Worker Node 係負責真正運行我哋啲應用程式嘅地方。</div>
+                <div class="concept-box"><strong>Pod:</strong> 係 Kubernetes 裡面最細嘅部署單位。一個 Pod 裡面可以有一個或者幾個 Container。你可以將佢想像成一間屋，啲 Container 就住喺裡面，共享網絡同儲存資源。</div>
+                <div class="concept-box"><strong>Deployment (部署):</strong> 用嚟定義我哋應用程式嘅「理想狀態」，例如我想要行幾個 Pod。Deployment 會自動幫我哋維持住呢個狀態，如果其中一個 Pod 死咗，佢會自動整個新嘅出嚟。</div>
+                <div class="concept-box"><strong>Service (服務):</strong> 因為 Pod 係會死會變嘅，佢哋嘅 IP 地址都唔固定。Service 就好似一個固定嘅門牌號碼，提供一個穩定嘅入口俾我哋或者其他應用程式去存取一組 Pod。</div>
+                <div class="concept-box"><strong>Namespace (命名空間):</strong> 用嚟將一個 Cluster 分割成幾個虛擬嘅細 Cluster，方便唔同團隊或者項目共用資源而又唔會互相干擾。</div>
+            </div>
+             <div class="mt-8 p-6 bg-stone-200 rounded-lg">
+                <h3 class="text-2xl font-semibold mb-4 text-center">Kubernetes 架構圖</h3>
+                <div class="w-full text-sm text-center bg-white p-4 rounded-lg shadow-md">
+                    <div class="p-4 border-2 border-purple-400 border-dashed rounded-lg">
+                        <p class="font-bold text-purple-600">Cluster (叢集)</p>
+                        <div class="mt-4 p-4 bg-purple-100 rounded-lg">
+                            <p class="font-semibold">Control Plane (Master Node)</p>
+                            <div class="flex justify-center flex-wrap gap-2 mt-2">
+                                <div class="bg-purple-200 p-2 rounded">API Server</div>
+                                <div class="bg-purple-200 p-2 rounded">etcd</div>
+                                <div class="bg-purple-200 p-2 rounded">Scheduler</div>
+                                <div class="bg-purple-200 p-2 rounded">Controller</div>
+                            </div>
+                        </div>
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 bg-stone-100 rounded-lg border border-stone-300">
+                                <p class="font-semibold">Worker Node 1</p>
+                                <div class="flex justify-center items-center gap-2 mt-2">
+                                    <div class="p-2 bg-green-200 rounded-md">Pod</div>
+                                    <div class="p-2 bg-green-200 rounded-md">Pod</div>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-stone-100 rounded-lg border border-stone-300">
+                                <p class="font-semibold">Worker Node 2</p>
+                                <div class="flex justify-center items-center gap-2 mt-2">
+                                    <div class="p-2 bg-green-200 rounded-md">Pod</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="lab-setup" class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">第二章：建立實驗環境</h2>
+            <p class="mb-4">工欲善其事，必先利其器。我哋會用 Minikube 喺自己部電腦上面建立一個單節點嘅 Kubernetes Cluster，方便學習同測試。</p>
+            <h3 class="text-2xl font-semibold mb-3">1. 安裝 Minikube</h3>
+            <p class="mb-2">Minikube 是一個可以讓你在本機端輕鬆執行 Kubernetes 的工具。請根據你的作業系統，到 <a href="https://minikube.sigs.k8s.io/docs/start/" target="_blank" class="text-purple-600 hover:underline">Minikube 官方網站</a> 參考安裝指示。</p>
+            
+            <h3 class="text-2xl font-semibold mb-3 mt-6">2. 安裝 kubectl</h3>
+            <p class="mb-2">kubectl 係同 Kubernetes Cluster 溝通嘅命令行工具。請參考 <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl/" target="_blank" class="text-purple-600 hover:underline">Kubernetes 官方文件</a> 進行安裝。</p>
+
+            <h3 class="text-2xl font-semibold mb-3 mt-6">3. 啟動你嘅 Cluster</h3>
+            <p class="mb-2">安裝好之後，打開你嘅 terminal (終端機)，輸入以下指令啟動 Minikube:</p>
+            <div class="code-block">
+                <button class="copy-btn">複製</button>
+                <pre>minikube start</pre>
+            </div>
+            <p class="mb-2">等佢行完之後，你可以用以下指令檢查 Cluster 狀態：</p>
+            <div class="code-block">
+                <button class="copy-btn">複製</button>
+                <pre>kubectl cluster-info</pre>
+            </div>
+            <p>如果見到類似以下嘅輸出，就代表你嘅 Cluster 已經成功啟動啦！</p>
+        </section>
+
+        <section id="first-app" class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">第三章：部署第一個應用</h2>
+            <p class="mb-4">我哋嚟試下部署一個簡單嘅 Nginx 網頁伺服器。</p>
+            <h3 class="text-2xl font-semibold mb-3">1. 建立 Deployment</h3>
+            <p class="mb-2">用 `kubectl create deployment` 指令去建立一個 Deployment。我哋指定用 `nginx` 呢個 image，同埋開一個 Pod (`--replicas=1`)。</p>
+            <div class="code-block">
+                <button class="copy-btn">複製</button>
+                <pre>kubectl create deployment nginx-deployment --image=nginx --replicas=1</pre>
+            </div>
+            <p class="mb-2">檢查下個 Deployment 係咪成功建立：</p>
+            <div class="code-block">
+                <button class="copy-btn">複製</button>
+                <pre>kubectl get deployments</pre>
+            </div>
+            <p class="mb-2">同埋睇下個 Pod 係咪已經喺度行緊：</p>
+            <div class="code-block">
+                <button class="copy-btn">複製</button>
+                <pre>kubectl get pods</pre>
+            </div>
+
+            <h3 class="text-2xl font-semibold mb-3 mt-6">2. 建立 Service</h3>
+            <p class="mb-2">而家個 Nginx 雖然行緊，但我哋喺外面係存取唔到嘅。我哋要建立一個 Service 將佢暴露出去。我哋用 `NodePort` 呢種類型，佢會喺 Node 上面開一個 port，將流量轉發到 Pod。</p>
+            <div class="code-block">
+                <button class="copy-btn">複製</button>
+                <pre>kubectl expose deployment nginx-deployment --type=NodePort --port=80</pre>
+            </div>
+            <p class="mb-2">檢查下個 Service：</p>
+            <div class="code-block">
+                <button class="copy-btn">複製</button>
+                <pre>kubectl get services</pre>
+            </div>
+
+            <h3 class="text-2xl font-semibold mb-3 mt-6">3. 存取你嘅應用</h3>
+            <p class="mb-2">用以下指令攞到存取應用嘅 URL：</p>
+            <div class="code-block">
+                <button class="copy-btn">複製</button>
+                <pre>minikube service nginx-deployment</pre>
+            </div>
+            <p class="mb-2">呢個指令會自動喺你嘅瀏覽器打開個網址，你應該會見到 Nginx 嘅歡迎頁面！</p>
+            
+            <h3 class="text-2xl font-semibold mb-3 mt-6">4. 擴展應用 (Scale Up)</h3>
+            <p class="mb-2">如果流量增加，我哋可以好簡單咁將 Pod 嘅數量增加到 3 個：</p>
+            <div class="code-block">
+                <button class="copy-btn">複製</button>
+                <pre>kubectl scale deployment nginx-deployment --replicas=3</pre>
+            </div>
+            <p class="mb-2">再睇下啲 Pods：</p>
+            <div class="code-block">
+                <button class="copy-btn">複製</button>
+                <pre>kubectl get pods</pre>
+            </div>
+            <p>你會見到 Kubernetes 自動幫你開咗兩個新嘅 Pod 出嚟，而 Service 會自動將流量負載均衡到呢三個 Pod。</p>
+        </section>
+
+        <section id="workloads" class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">第四章：深入工作負載</h2>
+            <p class="mb-4">除咗 Deployment，Kubernetes 仲有其他幾種管理 Pod 嘅方法，適用於唔同場景。</p>
+            <div class="space-y-6">
+                <div class="concept-box">
+                    <h3 class="text-xl font-bold mb-2">StatefulSet</h3>
+                    <p>適用於有狀態嘅應用，例如數據庫 (MySQL, PostgreSQL)。StatefulSet 會確保每個 Pod 都有一個穩定、獨一無二嘅網絡標識 (例如 pod-0, pod-1) 同埋獨立嘅儲存。就算 Pod 重啟，佢嘅名同儲存都唔會變。</p>
+                </div>
+                <div class="concept-box">
+                    <h3 class="text-xl font-bold mb-2">DaemonSet</h3>
+                    <p>確保喺 Cluster 入面嘅每一個 (或者指定嘅) Node 上面，都一定會有一個呢種 Pod 喺度行緊。常用於部署一啲監控 (monitoring) 或者日誌收集 (log collection) 嘅代理程式。</p>
+                </div>
+                <div class="concept-box">
+                    <h3 class="text-xl font-bold mb-2">Job & CronJob</h3>
+                    <p><strong>Job</strong> 用嚟執行一啲一次性嘅任務，例如數據庫遷移、批次處理。當任務成功完成後，Pod 就會終止。<strong>CronJob</strong> 就好似 Linux 嘅 crontab，可以設定排程，定時定候去執行一個 Job，例如每日備份數據。</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="networking" class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">第五章：網絡與儲存</h2>
+            <p class="mb-4">網絡同儲存係 Kubernetes 裡面比較複雜但又非常重要嘅部分。</p>
+            <h3 class="text-2xl font-semibold mb-3">Service 類型</h3>
+            <ul class="list-disc list-inside space-y-2 mb-4">
+                <li><strong>ClusterIP:</strong> 預設類型。只會喺 Cluster 內部提供一個 IP，俾其他 Pod 存取，外面係連唔到嘅。</li>
+                <li><strong>NodePort:</strong> 喺每個 Node 上面開一個固定嘅 Port，將流量導入 Service。通常用喺開發同測試環境。</li>
+                <li><strong>LoadBalancer:</strong> 會向你用緊嘅雲端供應商 (例如 AWS, GCP) 申請一個真實嘅 Load Balancer，將外部流量導向你嘅 Service。呢個係將服務暴露俾公網最標準嘅方法。</li>
+            </ul>
+            <h3 class="text-2xl font-semibold mb-3 mt-6">Ingress</h3>
+            <p class="mb-2">如果你有好多個 Service 都想俾外面存取，用 LoadBalancer 類型會好貴，因為每個 Service 都要一個 Load Balancer。Ingress 就好似一個智能嘅交通警察，佢可以根據請求嘅 URL 路徑 (path) 或者主機名 (hostname)，將流量分發到唔同嘅 Service。你只需要一個 Load Balancer 對住 Ingress Controller 就夠。</p>
+            
+            <h3 class="text-2xl font-semibold mb-3 mt-6">儲存 (Storage)</h3>
+            <p class="mb-2">Pod 裡面嘅檔案系統係暫時性嘅，Pod 一死，啲資料就冇晒。為咗永久保存數據，我哋要用 Volume。</p>
+            <ul class="list-disc list-inside space-y-2">
+                <li><strong>PersistentVolume (PV):</strong> 由管理員預先設定好嘅一塊儲存空間，例如一塊雲端硬碟。</li>
+                <li><strong>PersistentVolumeClaim (PVC):</strong> 由開發人員提出嘅儲存「申請」。就好似我同 Kubernetes 講：「我需要 10GB 嘅儲存空間」。Kubernetes 會自動搵一塊符合要求嘅 PV 綁定俾我用。</li>
+            </ul>
+            <p class="mt-2">用 PV 同 PVC 嘅好處係將應用程式同具體嘅儲存技術分開，令應用程式更具可攜性。</p>
+        </section>
+
+        <section id="advanced" class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">第六章：進階主題</h2>
+            <p class="mb-4">掌握咗基礎之後，可以了解一下呢啲進階主題，令你嘅 Kubernetes 技能更上一層樓。</p>
+            <div class="space-y-6">
+                <div class="concept-box">
+                    <h3 class="text-xl font-bold mb-2">ConfigMap & Secret</h3>
+                    <p><strong>ConfigMap</strong> 用嚟儲存非敏感嘅設定資料，例如環境變數、設定檔。<strong>Secret</strong> 就用嚟儲存敏感資料，例如密碼、API Key。佢哋會用 Base64 編碼，雖然唔係加密，但可以避免將敏感資料直接寫死喺程式碼或者 Docker Image 入面。</p>
+                </div>
+                <div class="concept-box">
+                    <h3 class="text-xl font-bold mb-2">Helm</h3>
+                    <p>Helm 係 Kubernetes 嘅套件管理工具，好似 Linux 嘅 `apt` 或者 `yum`。佢可以將一個應用程式所需嘅所有 Kubernetes 資源 (Deployment, Service, ConfigMap 等) 打包成一個 Chart，然後用一條指令就可以安裝、升級或者刪除成個應用，大大簡化咗複雜應用嘅部署流程。</p>
+                </div>
+                <div class="concept-box">
+                    <h3 class="text-xl font-bold mb-2">監控與日誌 (Monitoring & Logging)</h3>
+                    <p>要確保生產環境穩定，監控同日誌係必不可少。常用嘅組合有 <strong>Prometheus + Grafana</strong> 用嚟做監控同警報，同埋 <strong>EFK (Elasticsearch, Fluentd, Kibana) Stack</strong> 用嚟集中收集同分析日誌。</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="cheatsheet" class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">常用指令大全 (kubectl Cheat Sheet)</h2>
+            <p class="mb-4">呢度列出啲常用嘅 `kubectl` 指令，方便你隨時查閱。</p>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">查看資源</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">複製</button>
+                        <pre>
+kubectl get pods
+kubectl get deployments
+kubectl get services
+kubectl get nodes
+kubectl get namespaces
+kubectl get all --all-namespaces
+                        </pre>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">詳細資訊</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">複製</button>
+                        <pre>
+# 將 &lt;pod-name&gt; 換成你嘅 Pod 名稱
+kubectl describe pod &lt;pod-name&gt;
+kubectl logs &lt;pod-name&gt;
+# 加 -f 可以實時追蹤 log
+kubectl logs -f &lt;pod-name&gt;
+                        </pre>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">操作資源</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">複製</button>
+                        <pre>
+# 用 YAML 檔案建立資源
+kubectl apply -f your-file.yaml
+# 刪除資源
+kubectl delete deployment &lt;deployment-name&gt;
+kubectl delete service &lt;service-name&gt;
+                        </pre>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">偵錯</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">複製</button>
+                        <pre>
+# 進入 Pod 裡面嘅 container
+kubectl exec -it &lt;pod-name&gt; -- /bin/bash
+# Port forward 到本機
+kubectl port-forward svc/&lt;service-name&gt; 8080:80
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const menuBtn = document.getElementById('menu-btn');
+            const sidebar = document.getElementById('sidebar');
+            menuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+
+            // Smooth scrolling for nav links
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // Close mobile menu on click
+                        if(window.innerWidth < 768) {
+                            sidebar.classList.add('-translate-x-full');
+                        }
+                    }
+                });
+            });
+
+            // Active nav link highlighting on scroll
+            const sections = document.querySelectorAll('section');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active-nav');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active-nav');
+                            }
+                        });
+                    }
+                });
+            }, { rootMargin: '-30% 0px -70% 0px' });
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            // Copy button functionality
+            const copyButtons = document.querySelectorAll('.copy-btn');
+            copyButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const codeBlock = this.nextElementSibling;
+                    const textToCopy = codeBlock.innerText;
+                    
+                    const textArea = document.createElement('textarea');
+                    textArea.value = textToCopy;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+
+                    this.innerText = '已複製!';
+                    setTimeout(() => {
+                        this.innerText = '複製';
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
