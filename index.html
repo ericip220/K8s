@@ -13,73 +13,107 @@
     <style>
         body {
             font-family: 'Noto Sans HK', sans-serif;
-            background: linear-gradient(120deg, #f5f5f4 0%, #e0e7ff 100%);
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #f0f9ff 100%);
             color: #292524;
             transition: background 0.8s, color 0.4s;
+            background-size: 400% 400%;
+            animation: gradientMove 16s ease-in-out infinite;
         }
         body.dark {
-            background: linear-gradient(120deg, #18181b 0%, #312e81 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #0369a1 50%, #38bdf8 100%);
             color: #f5f5f4;
+            background-size: 400% 400%;
+            animation: gradientMove 16s ease-in-out infinite;
         }
-        .code-block {
-            background-color: #292524;
-            color: #f5f5f4;
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Glassmorphism effect for sidebar and main content */
+        #sidebar, main {
+            background: rgba(255, 255, 255, 0.35);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: background 0.4s, color 0.4s;
+        }
+        body.dark #sidebar, body.dark main {
+            background: rgba(30, 41, 59, 0.45);
+            border: 1px solid rgba(56, 189, 248, 0.18);
+        }
+
+        /* Headline and highlight colors */
+        h1, h2, h3 {
+            color: #0ea5e9; /* Sky 500 */
+            font-weight: 700;
+        }
+        .active-nav {
+            background-color: #0ea5e9; /* Sky 500 */
+            color: white;
+        }
+        .nav-link:hover {
+            background-color: #38bdf8 !important; /* Sky 400 */
+            color: white !important;
+        }
+
+        /* Concept box glass style */
+        .concept-box {
+            background: rgba(224, 242, 254, 0.7); /* Sky 100 */
+            border-left: 4px solid #0ea5e9;
+            color: #0369a1;
+            box-shadow: 0 4px 24px 0 rgba(14, 165, 233, 0.08);
+            backdrop-filter: blur(8px);
             border-radius: 0.5rem;
-            padding: 1rem;
-            margin-top: 0.5rem;
-            margin-bottom: 1rem;
-            overflow-x: auto;
+            transition: background 0.4s, color 0.4s;
+        }
+        body.dark .concept-box {
+            background: rgba(30, 41, 59, 0.7);
+            border-left: 4px solid #38bdf8;
+            color: #bae6fd;
+        }
+
+        /* Code block glass style */
+        .code-block {
+            background: rgba(14, 165, 233, 0.15);
+            color: #0369a1;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 8px 0 rgba(14, 165, 233, 0.08);
+            backdrop-filter: blur(4px);
             font-family: monospace;
             position: relative;
             transition: background 0.4s, color 0.4s;
         }
         body.dark .code-block {
-            background-color: #1e293b;
-            color: #e0e7ff;
+            background: rgba(30, 41, 59, 0.7);
+            color: #bae6fd;
         }
+
+        /* Update copy button for glass style */
         .copy-btn {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            background-color: #57534e; /* Stone 600 */
-            color: #f5f5f4;
+            background-color: #0ea5e9;
+            color: #fff;
             border: none;
             padding: 0.25rem 0.5rem;
             border-radius: 0.25rem;
             cursor: pointer;
             font-size: 0.8rem;
+            box-shadow: 0 1px 4px rgba(14, 165, 233, 0.15);
+            transition: background 0.3s;
         }
         .copy-btn:hover {
-            background-color: #78716c; /* Stone 500 */
+            background-color: #38bdf8;
         }
-        h1, h2, h3 {
-            color: #a855f7; /* Purple 500 */
-            font-weight: 700;
+
+        /* Optional: Add a subtle border to main content for glass look */
+        main {
+            border: 1px solid rgba(14, 165, 233, 0.12);
         }
-        .active-nav {
-            background-color: #a855f7; /* Purple 500 */
-            color: white;
-        }
-        .concept-box {
-            background-color: #e7e5e4; /* Stone 200 */
-            border-left: 4px solid #a855f7; /* Purple 500 */
-            padding: 1rem;
-            border-radius: 0.25rem;
-            transition: background 0.4s, color 0.4s;
-        }
-        body.dark .concept-box {
-            background-color: #27272a;
-            border-left: 4px solid #818cf8;
-            color: #e0e7ff;
-        }
-        /* Add smooth gradient animation */
-        @keyframes gradientMove {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
-        }
-        body, body.dark {
-            background-size: 200% 200%;
-            animation: gradientMove 12s ease-in-out infinite alternate;
+        body.dark main {
+            border: 1px solid rgba(56, 189, 248, 0.18);
         }
     </style>
 </head>
