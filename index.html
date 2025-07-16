@@ -13,12 +13,17 @@
     <style>
         body {
             font-family: 'Noto Sans HK', sans-serif;
-            background-color: #f5f5f4; /* Stone 100 */
-            color: #292524; /* Stone 800 */
+            background: linear-gradient(120deg, #f5f5f4 0%, #e0e7ff 100%);
+            color: #292524;
+            transition: background 0.8s, color 0.4s;
+        }
+        body.dark {
+            background: linear-gradient(120deg, #18181b 0%, #312e81 100%);
+            color: #f5f5f4;
         }
         .code-block {
-            background-color: #292524; /* Stone 800 */
-            color: #f5f5f4; /* Stone 100 */
+            background-color: #292524;
+            color: #f5f5f4;
             border-radius: 0.5rem;
             padding: 1rem;
             margin-top: 0.5rem;
@@ -26,6 +31,11 @@
             overflow-x: auto;
             font-family: monospace;
             position: relative;
+            transition: background 0.4s, color 0.4s;
+        }
+        body.dark .code-block {
+            background-color: #1e293b;
+            color: #e0e7ff;
         }
         .copy-btn {
             position: absolute;
@@ -55,6 +65,21 @@
             border-left: 4px solid #a855f7; /* Purple 500 */
             padding: 1rem;
             border-radius: 0.25rem;
+            transition: background 0.4s, color 0.4s;
+        }
+        body.dark .concept-box {
+            background-color: #27272a;
+            border-left: 4px solid #818cf8;
+            color: #e0e7ff;
+        }
+        /* Add smooth gradient animation */
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        body, body.dark {
+            background-size: 200% 200%;
+            animation: gradientMove 12s ease-in-out infinite alternate;
         }
     </style>
 </head>
@@ -83,6 +108,11 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
         </svg>
     </button>
+
+    <!-- Theme Toggle Button -->
+    <button id="theme-btn" class="fixed top-4 right-4 z-20 bg-stone-300 dark:bg-stone-700 text-purple-700 dark:text-purple-200 p-2 rounded-md shadow hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors">
+        🌙
+    </button>
     
     <!-- Main Content -->
     <main class="w-full md:ml-64 p-6 md:p-12">
@@ -100,7 +130,7 @@
             <p class="mb-6">喺我哋開始郁手做之前，首先要了解一下 Kubernetes 裡面最重要嘅幾個概念。</p>
             <div class="grid md:grid-cols-2 gap-6">
                 <div class="concept-box"><strong>Cluster (叢集):</strong> 成個 Kubernetes 環境就係一個 Cluster。佢由一部 Master Node (控制平面) 同幾部 Worker Node (工作節點) 組成。</div>
-                <div class="concept-box"><strong>Node (節點):</strong> 一部 Node 就好似一部伺服器，可以係實體機或者虛擬機。Worker Node 係負責真正運行我哋啲應用程式嘅地方。</div>
+                <div class="concept-box"><strong>Node (節點):</strong> 一部 Node 就好似一部伺服器，可以係實體機或者虛擬機。Worker Node 係負責真正運行我哂啲應用程式嘅地方。</div>
                 <div class="concept-box"><strong>Pod:</strong> 係 Kubernetes 裡面最細嘅部署單位。一個 Pod 裡面可以有一個或者幾個 Container。你可以將佢想像成一間屋，啲 Container 就住喺裡面，共享網絡同儲存資源。</div>
                 <div class="concept-box"><strong>Deployment (部署):</strong> 用嚟定義我哋應用程式嘅「理想狀態」，例如我想要行幾個 Pod。Deployment 會自動幫我哋維持住呢個狀態，如果其中一個 Pod 死咗，佢會自動整個新嘅出嚟。</div>
                 <div class="concept-box"><strong>Service (服務):</strong> 因為 Pod 係會死會變嘅，佢哋嘅 IP 地址都唔固定。Service 就好似一個固定嘅門牌號碼，提供一個穩定嘅入口俾我哋或者其他應用程式去存取一組 Pod。</div>
@@ -401,6 +431,13 @@ kubectl port-forward svc/&lt;service-name&gt; 8080:80
                         this.innerText = '複製';
                     }, 2000);
                 });
+            });
+
+            // Theme toggle
+            const themeBtn = document.getElementById('theme-btn');
+            themeBtn.addEventListener('click', () => {
+                document.body.classList.toggle('dark');
+                themeBtn.innerText = document.body.classList.contains('dark') ? '☀️' : '🌙';
             });
         });
     </script>
