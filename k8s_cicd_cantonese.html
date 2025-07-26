@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第七章：CI/CD 與 Kubernetes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: This is a standalone HTML page for the CI/CD chapter, designed to be linked from the main course. It provides a focused, in-depth explanation of CI/CD concepts, benefits, integration with Kubernetes, and common tools. The structure is linear, guiding the user through definitions, processes, and practical applications. Interactivity includes copyable code blocks and a visual diagram of the CI/CD pipeline. -->
+    <!-- Visualization & Content Choices: Report Info -> CI/CD in Kubernetes. Goal -> Explain CI/CD concepts and its integration with Kubernetes. Viz/Presentation Method -> Structured text, concept boxes for definitions, and an HTML/CSS diagram for the CI/CD pipeline. Interaction -> Copy buttons for code snippets. Justification -> A dedicated page allows for more detailed explanation without cluttering the main course. The diagram visually explains the flow, enhancing understanding. Library/Method -> Vanilla JavaScript for copy functionality, Tailwind CSS for styling. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans HK', sans-serif;
+            background-color: #f5f5f4; /* Stone 100 */
+            color: #292524; /* Stone 800 */
+            padding: 2rem;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .code-block {
+            background-color: #292524; /* Stone 800 */
+            color: #f5f5f4; /* Stone 100 */
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            font-family: monospace;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #57534e; /* Stone 600 */
+            color: #f5f5f4;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .copy-btn:hover {
+            background-color: #78716c; /* Stone 500 */
+        }
+        h1, h2, h3 {
+            color: #a855f7; /* Purple 500 */
+            font-weight: 700;
+        }
+        .concept-box {
+            background-color: #e7e5e4; /* Stone 200 */
+            border-left: 4px solid #a855f7; /* Purple 500 */
+            padding: 1rem;
+            border-radius: 0.25rem;
+        }
+        .pipeline-step {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #d8b4fe; /* Purple 300 */
+            color: #4c1d95; /* Purple 900 */
+            padding: 0.75rem 1.25rem;
+            border-radius: 9999px; /* Full rounded */
+            font-weight: 600;
+            text-align: center;
+            flex-shrink: 0;
+            min-width: 120px;
+        }
+        .pipeline-arrow {
+            width: 40px;
+            height: 2px;
+            background-color: #a855f7; /* Purple 500 */
+            position: relative;
+        }
+        .pipeline-arrow::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid #a855f7; /* Purple 500 */
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="text-purple-600 hover:underline mb-8 block">&larr; 返回主課程</a>
+        <h1 class="text-4xl font-bold mb-6">第七章：CI/CD 與 Kubernetes</h1>
+        <p class="text-lg text-stone-600 mb-6">呢一章會深入探討 CI/CD (持續整合與持續部署) 嘅概念，佢點樣與 Kubernetes 緊密結合，以及常用嘅工具同實踐方法。</p>
+
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold mb-4">什麼是 CI/CD？</h2>
+            <p class="mb-4">CI/CD 係現代軟體開發嘅核心實踐，目的係透過自動化，快速、可靠地將程式碼從開發環境部署到生產環境。佢由兩部分組成：</p>
+            <div class="grid md:grid-cols-2 gap-6 mt-6">
+                <div class="concept-box">
+                    <h3 class="text-xl font-bold mb-2">持續整合 (Continuous Integration - CI)</h3>
+                    <p>CI 係指開發者頻繁地將代碼合併到共享主幹 (例如 Git 倉庫嘅 `main` 分支)，並自動化運行測試。目標係盡早發現並解決整合問題，確保代碼庫始終處於可工作狀態。</p>
+                    <p class="mt-2">喺 Kubernetes 環境中，CI 流程通常包括：程式碼提交 -> 自動化測試 (單元測試、集成測試) -> 建構 Docker Image -> 將 Image 推送到容器註冊表 (Container Registry)。</p>
+                </div>
+                <div class="concept-box">
+                    <h3 class="text-xl font-bold mb-2">持續交付 (Continuous Delivery - CD) 與 持續部署 (Continuous Deployment - CD)</h3>
+                    <p>呢兩者都係 CI 嘅延伸：</p>
+                    <ul class="list-disc list-inside space-y-1 mt-2">
+                        <li><strong>持續交付 (Continuous Delivery):</strong> 確保程式碼隨時可以部署到生產環境，但實際部署需要手動觸發。</li>
+                        <li><strong>持續部署 (Continuous Deployment):</strong> 更進一步，程式碼通過所有自動化測試後，會自動部署到生產環境，無需人工干預。</li>
+                    </ul>
+                    <p class="mt-2">喺 Kubernetes 環境中，CD 流程通常包括：從容器註冊表拉取 Image -> 更新 Kubernetes Deployment 設定檔 -> 部署到 Kubernetes Cluster。</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold mb-4">CI/CD 流程圖</h2>
+            <p class="mb-6">以下係一個典型嘅 CI/CD 管道 (Pipeline) 流程，展示咗從程式碼提交到應用程式部署嘅自動化步驟。</p>
+            <div class="flex flex-wrap items-center justify-center gap-4 py-8 bg-stone-100 rounded-lg shadow-inner">
+                <div class="pipeline-step">程式碼提交</div>
+                <div class="pipeline-arrow"></div>
+                <div class="pipeline-step">自動化測試</div>
+                <div class="pipeline-arrow"></div>
+                <div class="pipeline-step">建構 Image</div>
+                <div class="pipeline-arrow"></div>
+                <div class="pipeline-step">推送 Image</div>
+                <div class="pipeline-arrow"></div>
+                <div class="pipeline-step">更新 K8s 配置</div>
+                <div class="pipeline-arrow"></div>
+                <div class="pipeline-step">部署到 K8s</div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold mb-4">常用 CI/CD 工具與 Kubernetes 整合</h2>
+            <p class="mb-4">有好多工具可以幫助你實現 CI/CD 管道，並與 Kubernetes 進行整合：</p>
+            <div class="space-y-6">
+                <div class="concept-box">
+                    <h3 class="text-xl font-bold mb-2">Jenkins</h3>
+                    <p>傳統但功能強大嘅開源自動化伺服器，擁有大量插件，可以與 Kubernetes 深度整合，例如使用 Jenkins Pipeline 腳本來控制 Kubernetes 資源嘅部署。</p>
+                </div>
+                <div class="concept-box">
+                    <h3 class="text-xl font-bold mb-2">GitLab CI/CD</h3>
+                    <p>GitLab 內置嘅 CI/CD 功能，與 Git 倉庫緊密結合。你可以喺 `gitlab-ci.yml` 文件中定義管道，直接喺 GitLab 上管理從代碼到部署嘅整個流程。</p>
+                </div>
+                <div class="concept-box">
+                    <h3 class="text-xl font-bold mb-2">GitHub Actions</h3>
+                    <p>GitHub 提供嘅 CI/CD 服務，方便與 GitHub 項目集成。你可以喺 `.github/workflows` 目錄下定義 YAML 文件來創建自動化工作流程，包括構建 Docker Image 同部署到 Kubernetes。</p>
+                </div>
+                <div class="concept-box">
+                    <h3 class="text-xl font-bold mb-2">ArgoCD / Flux CD (GitOps)</h3>
+                    <p>呢啲係 GitOps 嘅代表工具。GitOps 嘅核心理念係將應用程式嘅聲明式基礎設施同應用程式本身嘅狀態，都儲存喺 Git 倉庫入面。ArgoCD 同 Flux CD 會持續監控 Git 倉庫，一旦發現變更，就會自動將 Kubernetes Cluster 嘅實際狀態同步到 Git 倉庫定義嘅理想狀態。</p>
+                    <p class="mt-2">GitOps 嘅優點包括：版本控制、可審計性、快速回溯、統一管理。</p>
+                </div>
+                <div class="concept-box">
+                    <h3 class="text-xl font-bold mb-2">Tekton</h3>
+                    <p>Tekton 係一個 Kubernetes 原生嘅 CI/CD 框架。佢將 CI/CD 管道定義為 Kubernetes 資源，令你可以喺 Kubernetes Cluster 上面直接運行同管理 CI/CD 管道，充分利用 Kubernetes 嘅擴展性同彈性。</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold mb-4">CI/CD 實踐範例 (概念性)</h2>
+            <p class="mb-4">以下係一個簡化嘅 CI/CD 管道步驟，假設你使用 GitHub Actions 部署到 Kubernetes：</p>
+            <div class="code-block">
+                <button class="copy-btn">複製</button>
+                <pre>
+# .github/workflows/deploy.yml (簡化範例)
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Build Docker image
+      run: docker build -t my-registry/my-app:$(git rev-parse --short HEAD) .
+
+    - name: Log in to Docker Registry
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login my-registry -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
+    - name: Push Docker image
+      run: docker push my-registry/my-app:$(git rev-parse --short HEAD)
+
+    - name: Set up Kubeconfig
+      uses: azure/k8s-set-context@v1 # 或其他雲服務商的 action
+      with:
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+    - name: Deploy to Kubernetes
+      run: |
+        # 假設你有一個 k8s-deployment.yaml 文件
+        # 並替換其中的 image tag
+        sed -i "s|image: my-registry/my-app:latest|image: my-registry/my-app:$(git rev-parse --short HEAD)|g" k8s-deployment.yaml
+        kubectl apply -f k8s-deployment.yaml
+                </pre>
+            </div>
+            <p class="text-sm text-stone-600 mt-2">呢個範例展示咗一個基本流程，實際情況會更複雜，需要更多嘅安全配置同錯誤處理。</p>
+        </section>
+
+        <a href="index.html" class="text-purple-600 hover:underline mt-8 block">&larr; 返回主課程</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const copyButtons = document.querySelectorAll('.copy-btn');
+            copyButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const codeBlock = this.nextElementSibling;
+                    const textToCopy = codeBlock.innerText;
+                    
+                    const textArea = document.createElement('textarea');
+                    textArea.value = textToCopy;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+
+                    this.innerText = '已複製!';
+                    setTimeout(() => {
+                        this.innerText = '複製';
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
