@@ -422,16 +422,20 @@ kubectl port-forward svc/&lt;service-name&gt; 8080:80
             const navLinks = document.querySelectorAll('.nav-link');
             navLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        // Close mobile menu on click
-                        if(window.innerWidth < 768) {
-                            sidebar.classList.add('-translate-x-full');
+                    const href = this.getAttribute('href');
+                    // Only smooth scroll for internal links (start with #)
+                    if (href.startsWith('#')) {
+                        e.preventDefault();
+                        const targetElement = document.querySelector(href);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            // Close mobile menu on click
+                            if(window.innerWidth < 768) {
+                                sidebar.classList.add('-translate-x-full');
+                            }
                         }
                     }
+                    // For external links, let browser handle navigation
                 });
             });
 
